@@ -1,0 +1,6 @@
+---
+
+- name: Install java jdk headless
+  package:
+    name: "{{ java_package }}"
+    state: present

@@ -1,0 +1,22 @@
+- name: Install Jenkins
+  shell: |
+    sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+    https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+    https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+    /etc/apt/sources.list.d/jenkins.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install jenkins
+
+- name: Start Jenkins service
+  service:
+    name: jenkins
+    state: started
+    enabled: true
+
+- name: Wait for Jenkins to start
+  wait_for:
+    port: 8080
+    delay: 10
+    timeout: 300
+    

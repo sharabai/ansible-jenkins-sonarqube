@@ -1,0 +1,19 @@
+---
+- name: Set up CI/CD server with jenkins and sonarqube for Debian systems
+  hosts: linux
+  become: true
+
+  pre_tasks:
+    - name: Check if the system is Debian
+      assert:
+        that: ansible_os_family == 'Debian'
+        fail_msg: "This playbook only works on Debian-based systems"
+
+    - name: Update index
+      apt:
+        update_cache: true
+
+  roles:
+    - java
+    - jenkins
+    # -
