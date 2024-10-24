@@ -1,4 +1,4 @@
-ansible_become: yes
+java_package: openjdk-17-jdk-headless
 ansible_user: "{{ vault_ansible_user }}"
 ansible_password: "{{ vault_ansible_password }}"
 ansible_become_password: "{{ ansible_password }}"

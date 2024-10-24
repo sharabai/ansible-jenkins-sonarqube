@@ -1,12 +1,20 @@
+---
+
+- name: Download apt key
+  get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    dest: /usr/share/keyrings/jenkins-keyring.asc
+
+- name: Add Jenkins repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+    filename: jenkins
+
 - name: Install Jenkins
-  shell: |
-    sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
-    https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-    echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
-    https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-    /etc/apt/sources.list.d/jenkins.list > /dev/null
-    sudo apt-get update
-    sudo apt-get install jenkins
+  apt:
+    name: jenkins
+    state: present
+    update_cache: true
 
 - name: Start Jenkins service
   service:
@@ -19,4 +27,23 @@
     port: 8080
     delay: 10
     timeout: 300
-    
+
+- name: Get Jenkins initial admin password
+  slurp:
+    src: /var/lib/jenkins/secrets/initialAdminPassword
+  register: jenkins_password
+
+- name: debug
+  debug:
+    msg: 
+      - "{{ jenkins_password }}"
+      - "{{ jenkins_password['content'] | b64decode | trim }}"
+
+- name: Install plugins
+  jenkins_plugin:
+    name: "{{ item }}"      
+    url_username: admin
+    url_password: "{{ jenkins_password['content'] | b64decode | trim }}"
+    url: http://localhost:8080
+  loop:
+    - sonar
