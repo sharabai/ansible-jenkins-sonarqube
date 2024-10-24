@@ -5,10 +5,14 @@
     dest: "/var/lib/sonarqube-{{ sonarqube_version }}.zip"
     mode: "0644"
 
+- name: Create sonarqube user
+  user:
+    name: sonarqube
+    system: true
+
 - name: Install unzip
   package:
     name: unzip
-    state: present
 
 - name: Extract SonarQube
   unarchive:
@@ -16,3 +20,32 @@
     dest: /opt
     remote_src: true
     creates: "/opt/sonarqube-{{ sonarqube_version }}"
+
+- name: Change owner to sonarqube
+  file:
+    path: "/opt/sonarqube-{{ sonarqube_version }}"
+    owner: sonarqube
+    group: sonarqube
+    recurse: true
+    mode: "0755"
+
+- name: Configure SonarQube database connection
+  template:
+    src: sonar.properties.j2
+    dest: "/opt/sonarqube-{{ sonarqube_version }}/conf/sonar.properties"
+    mode: "0644"
+    backup: true
+
+- name: Create SonarQube service file
+  template:
+    src: sonarqube.service.j2
+    dest: /etc/systemd/system/sonarqube.service
+    mode: "0644"
+    backup: true
+
+- name: Start SonarQube service
+  systemd:
+    name: sonarqube
+    state: restarted
+    enabled: true
+    daemon_reload: true
