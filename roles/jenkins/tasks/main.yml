@@ -1,5 +1,4 @@
 ---
-
 - name: Download apt key
   get_url:
     url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
@@ -33,15 +32,15 @@
     src: /var/lib/jenkins/secrets/initialAdminPassword
   register: jenkins_password
 
-- name: debug
-  debug:
-    msg: 
-      - "{{ jenkins_password }}"
-      - "{{ jenkins_password['content'] | b64decode | trim }}"
+# - name: Debug
+#   debug:
+#     msg:
+#       - "{{ jenkins_password }}"
+#       - "{{ jenkins_password['content'] | b64decode | trim }}"
 
 - name: Install plugins
   jenkins_plugin:
-    name: "{{ item }}"      
+    name: "{{ item }}"
     url_username: admin
     url_password: "{{ jenkins_password['content'] | b64decode | trim }}"
     url: http://localhost:8080

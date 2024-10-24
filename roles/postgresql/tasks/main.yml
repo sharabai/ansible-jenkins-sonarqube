@@ -1,0 +1,37 @@
+---
+- name: Install PostgreSQL
+  package:
+    name:
+      - postgresql
+      - python3-psycopg2
+    state: present
+
+- name: Start PostgreSQL service
+  service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Create SonarQube database
+  community.postgresql.postgresql_db:
+    name: "{{ sonarqube_db_name }}"
+    encoding: UTF-8
+  become: true
+  become_user: postgres
+
+- name: Create SonarQube database user
+  community.postgresql.postgresql_user:
+    # db: "{{ sonarqube_db_name }}"
+    name: "{{ sonarqube_db_user }}"
+    password: "{{ sonarqube_db_password }}"
+  become: true
+  become_user: postgres
+
+- name: Grant database privileges to SonarQube user
+  community.postgresql.postgresql_privs:
+    db: "{{ sonarqube_db_name }}"
+    privs: ALL
+    type: database
+    role: "{{ sonarqube_db_user }}"
+  become: true
+  become_user: postgres

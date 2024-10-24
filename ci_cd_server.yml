@@ -16,4 +16,5 @@
   roles:
     - java
     - jenkins
-    # -
+    - postgresql
+    - sonarqube
