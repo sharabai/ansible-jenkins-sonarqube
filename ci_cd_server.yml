@@ -14,7 +14,8 @@
         update_cache: true
 
   roles:
-    # - java
-    # - jenkins
-    # - postgresql
+    - java
+    - jenkins
+    - postgresql
     - sonarqube
+    - integration

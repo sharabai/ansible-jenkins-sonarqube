@@ -11,7 +11,7 @@ ExecStop=+/bin/nohup /usr/bin/java -jar /opt/sonarqube-{{ sonarqube_version }}/l
 StandardOutput=journal
 LimitNOFILE=131072
 LimitNPROC=8192
-TimeoutStartSec=5
+TimeoutStartSec=60
 Restart=always
 SuccessExitStatus=143
 

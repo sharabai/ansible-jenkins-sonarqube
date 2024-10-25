@@ -1,0 +1,11 @@
+---
+- name: Create SonarQube token
+  uri:
+    url: http://localhost:9000/api/user_tokens/generate
+    method: POST
+    body:
+      name: jenkins-token
+    user: admin
+    password: admin
+    force_basic_auth: true
+  register: sonar_token

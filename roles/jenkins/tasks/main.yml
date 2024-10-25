@@ -1,10 +1,12 @@
 ---
-- name: Download apt key
+- name: Download Jenkins apt repository key
   get_url:
     url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
     dest: /usr/share/keyrings/jenkins-keyring.asc
+    mode: "0644"
+    force: true
 
-- name: Add Jenkins repository
+- name: Add Jenkins apt repository
   apt_repository:
     repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
     filename: jenkins
@@ -32,11 +34,11 @@
     src: /var/lib/jenkins/secrets/initialAdminPassword
   register: jenkins_password
 
-# - name: Debug
-#   debug:
-#     msg:
-#       - "{{ jenkins_password }}"
-#       - "{{ jenkins_password['content'] | b64decode | trim }}"
+- name: Debug
+  debug:
+    msg:
+      - "{{ jenkins_password }}"
+      - "{{ jenkins_password['content'] | b64decode | trim }}"
 
 - name: Install plugins
   jenkins_plugin:
@@ -46,3 +48,4 @@
     url: http://localhost:8080
   loop:
     - sonar
+    - configuration-as-code

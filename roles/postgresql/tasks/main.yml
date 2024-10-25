@@ -19,19 +19,33 @@
   become: true
   become_user: postgres
 
-- name: Create SonarQube database user
-  community.postgresql.postgresql_user:
-    # db: "{{ sonarqube_db_name }}"
-    name: "{{ sonarqube_db_user }}"
-    password: "{{ sonarqube_db_password }}"
-  become: true
-  become_user: postgres
-
 - name: Grant database privileges to SonarQube user
   community.postgresql.postgresql_privs:
     db: "{{ sonarqube_db_name }}"
     privs: ALL
     type: database
     role: "{{ sonarqube_db_user }}"
+  become: true
+  become_user: postgres
+
+- name: Grant schema and objects privileges to SonarQube user
+  community.postgresql.postgresql_privs:
+    db: "{{ sonarqube_db_name }}"
+    privs: ALL
+    type: schema
+    objs: public
+    role: "{{ sonarqube_db_user }}"
+    grant_option: true
+  become: true
+  become_user: postgres
+
+- name: Set default privileges for SonarQube user
+  community.postgresql.postgresql_privs:
+    db: "{{ sonarqube_db_name }}"
+    type: default_privs
+    privs: ALL
+    objs: ALL_DEFAULT
+    role: "{{ sonarqube_db_user }}"
+    grant_option: true
   become: true
   become_user: postgres
