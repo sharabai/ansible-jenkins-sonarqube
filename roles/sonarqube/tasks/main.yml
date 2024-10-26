@@ -49,3 +49,56 @@
     state: restarted
     enabled: true
     daemon_reload: true
+
+- name: Wait for SonarQube to start
+  wait_for:
+    port: 9000
+    delay: 10
+
+- name: Check SonarQube default password
+  uri:
+    url: http://localhost:9000/api/authentication/validate
+    user: admin
+    password: admin
+    force_basic_auth: true
+  register: login_res
+
+- name: Debug validate password
+  debug:
+    msg:
+      - "{{ login_res.json }}"
+      - "{{ login_res.json.valid }}"
+
+- name: Set SonarQube password
+  uri:
+    url: http://localhost:9000/api/users/change_password
+    method: POST
+    body:
+      login: admin
+      previousPassword: admin
+      password: "{{ sonarqube_password }}"
+    body_format: form-urlencoded
+    user: admin
+    password: admin
+    force_basic_auth: true
+    status_code: 204
+  register: change_pass_res
+  when: login_res.json.valid == true
+
+- name: Debug change pass
+  debug:
+    msg:
+      - "{{ change_pass_res.status }}"
+      - "{{ change_pass_res }}"
+  when: change_pass_res.changed == true
+
+- name: Check SonarQube password
+  uri:
+    url: http://localhost:9000/api/authentication/validate
+    user: admin
+    password: "{{ sonarqube_password }}"
+  register: login_res
+
+- name: Debug pass
+  debug:
+    msg: "{{ login_res.json }}"

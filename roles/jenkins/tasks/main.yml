@@ -20,14 +20,13 @@
 - name: Start Jenkins service
   service:
     name: jenkins
-    state: started
+    state: restarted
     enabled: true
 
 - name: Wait for Jenkins to start
   wait_for:
     port: 8080
     delay: 10
-    timeout: 300
 
 - name: Get Jenkins initial admin password
   slurp:

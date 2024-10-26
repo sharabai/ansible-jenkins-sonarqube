@@ -1,11 +1,36 @@
 ---
+- name: Check for token's existence
+  uri:
+    url: http://localhost:9000/api/user_tokens/search
+    body:
+      login: admin
+    body_format: form-urlencoded
+    user: admin
+    password: "{{ sonarqube_password }}"
+    force_basic_auth: true
+  register: sonar_token_search
+
+- name: Show tokens
+  debug:
+    msg:
+      - "{{ sonar_token_search.json }}"
+      - "{{ sonar_token_search.json.userTokens }}"
+      - "{{ sonar_token_search.json.userTokens | length }}"
+      - "{{ sonar_token_search.json.userTokens | length > 0 }}"
+
 - name: Create SonarQube token
   uri:
     url: http://localhost:9000/api/user_tokens/generate
     method: POST
     body:
       name: jenkins-token
+    body_format: form-urlencoded
     user: admin
-    password: admin
+    password: "{{ sonarqube_password }}"
     force_basic_auth: true
   register: sonar_token
+  when: sonar_token_search.json.userTokens | length == 0
+
+- name: Show created token
+  debug:
+    msg: "{{ sonar_token }}"
