@@ -6,7 +6,7 @@ credentials:
           - string:
               scope: GLOBAL
               id: "sonarqube-token"
-              secret: "{{ sonar_token.json.token }}"
+              secret: "{{ created_sonar_token.json.token }}"
               description: "SonarQube Authentication Token"
 
 unclassified:
@@ -16,10 +16,16 @@ unclassified:
       - name: "SonarQube"
         serverUrl: "http://localhost:9000"
         credentialsId: "sonarqube-token"
-        serverAuthenticationToken: ""
-        mojoVersion: ""
-        additionalProperties: ""
-        additionalAnalysisProperties: ""
         triggers:
-          skipScmCause: false
-          skipUpstreamCause: false
+          skipScmCause: true
+          skipUpstreamCause: true
+
+tool:
+  sonarRunnerInstallation:
+    installations:
+    - name: "SonarScanner"
+      properties:
+      - installSource:
+          installers:
+          - sonarRunnerInstaller:
+              id: "6.2.1.4610"

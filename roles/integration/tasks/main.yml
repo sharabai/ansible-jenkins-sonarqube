@@ -9,6 +9,7 @@
     password: "{{ sonarqube_password }}"
     force_basic_auth: true
   register: sonar_token_search
+  failed_when: sonar_token_search.json.userTokens | length > 0
 
 - name: Show tokens
   debug:
@@ -28,9 +29,23 @@
     user: admin
     password: "{{ sonarqube_password }}"
     force_basic_auth: true
-  register: sonar_token
+  register: created_sonar_token
   when: sonar_token_search.json.userTokens | length == 0
 
 - name: Show created token
   debug:
-    msg: "{{ sonar_token }}"
+    msg: "{{ created_sonar_token }}"
+
+- name: Create yaml jenkins config
+  template:
+    src: sonarqube-config.yaml.j2
+    dest: /var/lib/jenkins/jenkins.yaml
+    owner: jenkins
+    group: jenkins
+    mode: "0644"
+
+- name: Restart Jenkins service
+  service:
+    name: jenkins
+    state: restarted
+    enabled: true
