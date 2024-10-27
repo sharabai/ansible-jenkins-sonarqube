@@ -53,7 +53,7 @@
 - name: Wait for SonarQube to start
   wait_for:
     port: 9000
-    delay: 10
+    delay: 20
 
 - name: Check SonarQube default password
   uri:

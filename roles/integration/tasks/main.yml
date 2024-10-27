@@ -9,7 +9,6 @@
     password: "{{ sonarqube_password }}"
     force_basic_auth: true
   register: sonar_token_search
-  failed_when: sonar_token_search.json.userTokens | length > 0
 
 - name: Show tokens
   debug:
@@ -18,6 +17,7 @@
       - "{{ sonar_token_search.json.userTokens }}"
       - "{{ sonar_token_search.json.userTokens | length }}"
       - "{{ sonar_token_search.json.userTokens | length > 0 }}"
+  when: sonar_token_search is defined
 
 - name: Create SonarQube token
   uri:
@@ -35,6 +35,7 @@
 - name: Show created token
   debug:
     msg: "{{ created_sonar_token }}"
+  when: created_sonar_token is defined
 
 - name: Create yaml jenkins config
   template:
@@ -44,8 +45,32 @@
     group: jenkins
     mode: "0644"
 
+- name: Get Jenkins initial admin password
+  slurp:
+    src: /var/lib/jenkins/secrets/initialAdminPassword
+  register: jenkins_password
+
+# TODO: this assumes that apt downloads a good version of
+# python3-jenkins, which apt doesn't. So do it with pip later
+# which would require setting up venv for python
+# Dirty solution: install by force with pip3 that package
+# since there is low chance it would break python
+- name: Ensure python3-jenkins is installed on remote host
+  apt:
+    name: python3-jenkins
+    state: present
+    update_cache: yes
+
 - name: Restart Jenkins service
   service:
     name: jenkins
     state: restarted
     enabled: true
+
+- name: Create pipeline job
+  community.general.jenkins_job:
+    config: "{{ lookup('file', 'templates/pipeline-job.xml') }}"
+    name: example-analysis
+    user: admin
+    password: "{{ jenkins_password['content'] | b64decode | trim }}"
+    url: http://localhost:8080

@@ -1,4 +1,5 @@
 ---
+# TODO: change default password, check wheather the wizard is turned off
 - name: Download Jenkins apt repository key
   get_url:
     url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
@@ -48,3 +49,5 @@
   loop:
     - sonar
     - configuration-as-code
+    - workflow-aggregator
+    - git
