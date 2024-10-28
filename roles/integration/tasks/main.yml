@@ -59,7 +59,7 @@
   apt:
     name: python3-jenkins
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Restart Jenkins service
   service:

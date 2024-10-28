@@ -83,14 +83,14 @@
     force_basic_auth: true
     status_code: 204
   register: change_pass_res
-  when: login_res.json.valid == true
+  when: login_res.json.valid
 
 - name: Debug change pass
   debug:
     msg:
       - "{{ change_pass_res.status }}"
       - "{{ change_pass_res }}"
-  when: change_pass_res.changed == true
+  when: change_pass_res.changed
 
 - name: Check SonarQube password
   uri:
